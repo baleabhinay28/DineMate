@@ -2,6 +2,7 @@
 package com.example.dinemate.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,19 +17,23 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onRestaurantClick: (String) -> Unit = {}
+) {
 
     var searchText by remember { mutableStateOf("") }
 
     val orange = Color(0xFFFF7043)
     val background = Color(0xFFFFF8F2)
 
+    // Sample restaurant data
     val restaurants = listOf(
         Triple("🍕 Pizza Palace", "Italian • Pizza", "⭐ 4.5"),
         Triple("🍔 Burger House", "Fast Food • Burgers", "⭐ 4.3"),
         Triple("🍜 Noodle Corner", "Asian • Noodles", "⭐ 4.7")
     )
 
+    // Filter restaurants using the search bar
     val filteredRestaurants = restaurants.filter {
         it.first.contains(searchText, ignoreCase = true) ||
                 it.second.contains(searchText, ignoreCase = true)
@@ -60,6 +65,7 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Restaurant search bar
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -86,13 +92,20 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Restaurant list
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
+
             items(filteredRestaurants) { restaurant ->
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onRestaurantClick(restaurant.first)
+                        },
                     shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.White
@@ -101,6 +114,7 @@ fun HomeScreen() {
                         defaultElevation = 3.dp
                     )
                 ) {
+
                     Column(
                         modifier = Modifier.padding(20.dp)
                     ) {
@@ -127,6 +141,14 @@ fun HomeScreen() {
                             fontSize = 14.sp,
                             color = orange,
                             fontWeight = FontWeight.Medium
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Tap to view details →",
+                            fontSize = 12.sp,
+                            color = Color(0xFF999999)
                         )
                     }
                 }

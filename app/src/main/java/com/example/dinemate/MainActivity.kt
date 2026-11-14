@@ -5,16 +5,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 
 import com.example.dinemate.ui.screens.SplashScreen
 import com.example.dinemate.ui.screens.HomeScreen
+import com.example.dinemate.ui.screens.RestaurantDetailsScreen
 import com.example.dinemate.ui.theme.DineMateTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,13 +30,26 @@ class MainActivity : ComponentActivity() {
         setContent {
             DineMateTheme {
 
-                var showSplash by remember {
+                var showSplash by rememberSaveable {
                     mutableStateOf(true)
                 }
 
-                LaunchedEffect(Unit) {
-                    delay(2000)
-                    showSplash = false
+                var selectedRestaurant by rememberSaveable {
+                    mutableStateOf<String?>(null)
+                }
+
+                LaunchedEffect(showSplash) {
+                    if (showSplash) {
+                        delay(2000)
+                        showSplash = false
+                    }
+                }
+
+                BackHandler(
+                    enabled = !showSplash &&
+                            selectedRestaurant != null
+                ) {
+                    selectedRestaurant = null
                 }
 
                 if (showSplash) {
@@ -43,12 +60,26 @@ class MainActivity : ComponentActivity() {
                         containerColor = Color(0xFFFFF8F2)
                     ) { innerPadding ->
 
-                        androidx.compose.foundation.layout.Box(
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding)
                         ) {
-                            HomeScreen()
+                            if (selectedRestaurant == null) {
+                                HomeScreen(
+                                    onRestaurantClick = { restaurant ->
+                                        selectedRestaurant = restaurant
+                                    }
+                                )
+                            } else {
+                                RestaurantDetailsScreen(
+                                    restaurantName =
+                                        selectedRestaurant!!,
+                                    onBackClick = {
+                                        selectedRestaurant = null
+                                    }
+                                )
+                            }
                         }
                     }
                 }

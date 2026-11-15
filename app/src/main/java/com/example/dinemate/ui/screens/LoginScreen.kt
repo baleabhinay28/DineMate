@@ -3,10 +3,13 @@ package com.example.dinemate.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -18,19 +21,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> },
+    onLoginSuccess: () -> Unit = {},
     onSignUpClick: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var password by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+
+    var errorMessage by remember {
+        mutableStateOf("")
+    }
 
     val orange = Color(0xFFFF7043)
 
     val gradient = Brush.verticalGradient(
-        listOf(
+        colors = listOf(
             Color(0xFFFFC46B),
             Color(0xFFFF8A50),
             orange
@@ -47,9 +64,11 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(
                 text = "🍽️",
                 fontSize = 55.sp
@@ -87,10 +106,25 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
+                    Text(
+                        text = "Login",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = orange
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Email input
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
-                        label = { Text("Email Address") },
+                        onValueChange = {
+                            email = it
+                            errorMessage = ""
+                        },
+                        label = {
+                            Text("Email Address")
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -100,10 +134,16 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Password input
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
+                        onValueChange = {
+                            password = it
+                            errorMessage = ""
+                        },
+                        label = {
+                            Text("Password")
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         visualTransformation =
@@ -113,31 +153,84 @@ fun LoginScreen(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    // Login error
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(12.dp)
+                        )
+                    }
+
+                    // Firebase Login button
                     Button(
                         onClick = {
-                            onLoginClick(email.trim(), password)
+                            val userEmail = email.trim()
+
+                            if (userEmail.isEmpty() ||
+                                password.isEmpty()
+                            ) {
+                                errorMessage =
+                                    "Please enter email and password"
+                            } else {
+                                isLoading = true
+                                errorMessage = ""
+
+                                FirebaseAuth.getInstance()
+                                    .signInWithEmailAndPassword(
+                                        userEmail,
+                                        password
+                                    )
+                                    .addOnCompleteListener { task ->
+
+                                        isLoading = false
+
+                                        if (task.isSuccessful) {
+                                            onLoginSuccess()
+                                        } else {
+                                            errorMessage =
+                                                "Login failed. Check your email and password."
+                                        }
+                                    }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        enabled = email.isNotBlank() &&
+                        enabled = !isLoading &&
+                                email.isNotBlank() &&
                                 password.isNotBlank(),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = orange
                         )
                     ) {
-                        Text(
-                            text = "Login",
-                            fontSize = 17.sp
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "Login",
+                                fontSize = 17.sp
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    TextButton(onClick = onSignUpClick) {
+                    TextButton(
+                        onClick = onSignUpClick
+                    ) {
                         Text(
                             text = "Don't have an account? Sign Up",
                             color = orange

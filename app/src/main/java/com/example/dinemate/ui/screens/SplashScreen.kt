@@ -23,30 +23,30 @@ fun SplashScreen() {
         colors = listOf(
             Color(0xFFFFC46B),
             Color(0xFFFF8A50),
-            Color(0xFFFF5722)
-        )
+            Color(0xFFFF5722),
+        ),
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(gradient),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
             Surface(
                 modifier = Modifier.size(110.dp),
                 shape = RoundedCornerShape(28.dp),
-                color = Color.White.copy(alpha = 0.2f)
+                color = Color.White.copy(alpha = 0.2f),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = "🍽️",
-                        fontSize = 55.sp
+                        fontSize = 55.sp,
                     )
                 }
             }
@@ -57,7 +57,7 @@ fun SplashScreen() {
                 text = "DineMate",
                 fontSize = 42.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -65,7 +65,7 @@ fun SplashScreen() {
             Text(
                 text = "Discover • Dine • Enjoy",
                 fontSize = 17.sp,
-                color = Color.White
+                color = Color.White,
             )
         }
     }

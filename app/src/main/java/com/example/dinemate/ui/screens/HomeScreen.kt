@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun HomeScreen(
-    onRestaurantClick: (String) -> Unit = {}
+    onRestaurantClick: (String) -> Unit = {},
 ) {
 
     var searchText by remember { mutableStateOf("") }
@@ -34,9 +34,9 @@ fun HomeScreen(
     )
 
     // Filter restaurants using the search bar
-    val filteredRestaurants = restaurants.filter {
-        it.first.contains(searchText, ignoreCase = true) ||
-                it.second.contains(searchText, ignoreCase = true)
+    val filteredRestaurants = restaurants.filter { (name, cuisine, _) ->
+        name.contains(searchText, ignoreCase = true) ||
+                cuisine.contains(searchText, ignoreCase = true)
     }
 
     Column(
@@ -95,16 +95,16 @@ fun HomeScreen(
         // Restaurant list
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(14.dp),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
 
-            items(filteredRestaurants) { restaurant ->
+            items(filteredRestaurants) { (name, cuisine, rating) ->
 
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onRestaurantClick(restaurant.first)
+                            onRestaurantClick(name)
                         },
                     shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(
@@ -112,7 +112,7 @@ fun HomeScreen(
                     ),
                     elevation = CardDefaults.cardElevation(
                         defaultElevation = 3.dp
-                    )
+                    ),
                 ) {
 
                     Column(
@@ -120,7 +120,7 @@ fun HomeScreen(
                     ) {
 
                         Text(
-                            text = restaurant.first,
+                            text = name,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF333333)
@@ -129,7 +129,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = restaurant.second,
+                            text = cuisine,
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -137,7 +137,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = restaurant.third,
+                            text = rating,
                             fontSize = 14.sp,
                             color = orange,
                             fontWeight = FontWeight.Medium

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun RestaurantDetailsScreen(
     restaurantName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val orange = Color(0xFFFF7043)
 

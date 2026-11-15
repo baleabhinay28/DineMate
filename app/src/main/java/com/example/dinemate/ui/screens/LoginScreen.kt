@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit = {},
-    onSignUpClick: () -> Unit = {}
+    onSignUpClick: () -> Unit = {},
 ) {
     var email by rememberSaveable {
         mutableStateOf("")
@@ -37,7 +37,7 @@ fun LoginScreen(
     }
 
     var isLoading by remember {
-        mutableStateOf(false)
+        mutableStateOf(value = false)
     }
 
     var errorMessage by remember {
